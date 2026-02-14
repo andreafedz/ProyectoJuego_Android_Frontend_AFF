@@ -7,7 +7,7 @@ Aplicación Android desarrollada en Kotlin con Jetpack Compose.
 Play Portal es una aplicación con sistema de login y selección de juegos.
 Incluye el juego "Piedra, Papel o Tijeras" y manejo de perfil de usuario.
 
-## 🏗 Arquitectura
+## Arquitectura
 
 El proyecto implementa el patrón **MVVM (Model - View - ViewModel)**:
 
