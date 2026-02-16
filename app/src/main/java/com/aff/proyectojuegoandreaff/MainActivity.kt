@@ -32,75 +32,78 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            ProyectoJuegoAndreaFFTheme {
-                val juegoViewModel: JuegoViewModel = viewModel()
+            //  ViewModels globales
+            val juegoViewModel: JuegoViewModel = viewModel()
+            val themeViewModel: ThemeViewModel = viewModel()
 
-                // ✅ Estado global
+            // Estado global del tema
+            val darkTheme by themeViewModel.isDarkMode
+            val toggleTheme: () -> Unit = { themeViewModel.toggleTheme() }
+
+
+            ProyectoJuegoAndreaFFTheme(darkTheme = darkTheme) {
+
+
                 var pantallaActual by remember { mutableStateOf(RUTA_LOGIN) }
-                val themeViewModel: ThemeViewModel = viewModel()
-                val darkTheme = themeViewModel.isDarkMode.value
 
-                val toggleTheme: () -> Unit = { themeViewModel.toggleTheme() }
-
-
-                // Datos de usuario (mock)
+                //  Datos de usuario
                 var nombreUsuario by remember { mutableStateOf("AndreaFF") }
 
 
-                key(pantallaActual) {
-                    when (pantallaActual) {
+                when (pantallaActual) {
 
-                        RUTA_LOGIN -> {
-
-                            PantallaLogin(
-                                onIniciarSesion = { user ->
-                                    if (user.isNotBlank()) nombreUsuario = user
-                                    pantallaActual = RUTA_JUEGOS
-                                },
-                                onContinuarInvitado = {
-                                    nombreUsuario = "Invitado"
-                                    pantallaActual = RUTA_JUEGOS
-                                }
-                            )
-                        }
-
-                        RUTA_JUEGOS -> {
-                            JuegosDisponiblesScreen(
-                                darkTheme = darkTheme,
-                                onToggleTheme = toggleTheme,
-                                onAbrirPPT = { pantallaActual = RUTA_JUEGO_PPT },
-                                onAbrirPerfil = { pantallaActual = RUTA_PERFIL }
-                            )
-                        }
-
-                        RUTA_PERFIL -> {
-                            PantallaPerfil(
-                                darkTheme = darkTheme,
-                                onToggleTheme = toggleTheme,
-                                nombreUsuario = nombreUsuario,
-                                partidas = juegoViewModel.partidas.value,
-                                victorias = juegoViewModel.victorias.value,
-                                onEditarNombre = { nuevo ->
-                                    if (nuevo.isNotBlank()) nombreUsuario = nuevo
-                                },
-                                onVolver = { pantallaActual = RUTA_JUEGOS },
-                                onCerrarSesion = { pantallaActual = RUTA_LOGIN }
-                            )
-                        }
-
-                        RUTA_JUEGO_PPT -> {
-                            PantallaJuego(
-                                darkTheme = darkTheme,
-                                onToggleTheme = toggleTheme,
-                                juegoViewModel = juegoViewModel,
-                                onRegresar = { pantallaActual = RUTA_JUEGOS }
-                            )
-                        }
-
-                        else -> {
-                            Box(modifier = Modifier.fillMaxSize()) {
-                                Text("Pantalla no encontrada: $pantallaActual")
+                    RUTA_LOGIN -> {
+                        PantallaLogin(
+                            darkTheme = darkTheme,
+                            onToggleTheme = toggleTheme,
+                            onIniciarSesion = { user ->
+                                if (user.isNotBlank()) nombreUsuario = user
+                                pantallaActual = RUTA_JUEGOS
+                            },
+                            onContinuarInvitado = {
+                                nombreUsuario = "Invitado"
+                                pantallaActual = RUTA_JUEGOS
                             }
+                        )
+                    }
+
+
+                    RUTA_JUEGOS -> {
+                        JuegosDisponiblesScreen(
+                            darkTheme = darkTheme,
+                            onToggleTheme = toggleTheme,
+                            onAbrirPPT = { pantallaActual = RUTA_JUEGO_PPT },
+                            onAbrirPerfil = { pantallaActual = RUTA_PERFIL }
+                        )
+                    }
+
+                    RUTA_PERFIL -> {
+                        PantallaPerfil(
+                            darkTheme = darkTheme,
+                            onToggleTheme = toggleTheme,
+                            nombreUsuario = nombreUsuario,
+                            partidas = juegoViewModel.partidas.value,
+                            victorias = juegoViewModel.victorias.value,
+                            onEditarNombre = { nuevo ->
+                                if (nuevo.isNotBlank()) nombreUsuario = nuevo
+                            },
+                            onVolver = { pantallaActual = RUTA_JUEGOS },
+                            onCerrarSesion = { pantallaActual = RUTA_LOGIN }
+                        )
+                    }
+
+                    RUTA_JUEGO_PPT -> {
+                        PantallaJuego(
+                            darkTheme = darkTheme,
+                            onToggleTheme = toggleTheme,
+                            juegoViewModel = juegoViewModel,
+                            onRegresar = { pantallaActual = RUTA_JUEGOS }
+                        )
+                    }
+
+                    else -> {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Text("Pantalla no encontrada: $pantallaActual")
                         }
                     }
                 }

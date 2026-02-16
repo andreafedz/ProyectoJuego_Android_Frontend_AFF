@@ -10,30 +10,56 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun PantallaLogin(
+    darkTheme: Boolean,
+    onToggleTheme: () -> Unit,
     onIniciarSesion: (String) -> Unit,
     onContinuarInvitado: () -> Unit
 ) {
     var usuario by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
 
-    val fondo = Brush.verticalGradient(
-        colors = listOf(
-            Color(0xFFFFD1E8),
-            Color(0xFFFFE6F2),
-            Color(0xFFFFD1E8)
+    val fondo = if (darkTheme) {
+        Brush.verticalGradient(
+            colors = listOf(
+                Color(0xFF0B0814),
+                Color(0xFF120C24),
+                Color(0xFF0B0814)
+            )
         )
-    )
+    } else {
+        Brush.verticalGradient(
+            colors = listOf(
+                Color(0xFFFFD1E8),
+                Color(0xFFFFE6F2),
+                Color(0xFFFFD1E8)
+            )
+        )
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(fondo)
+            .statusBarsPadding()
             .padding(16.dp)
-    ) {
+    )
+    {
+
+        IconButton(
+            onClick = onToggleTheme,
+            modifier = Modifier.align(Alignment.TopStart)
+        ) {
+            Text(
+                text = if (darkTheme) "☀️" else "🌙",
+                style = MaterialTheme.typography.titleLarge
+            )
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -45,7 +71,7 @@ fun PantallaLogin(
                 text = "PLAY\nPORTAL",
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.ExtraBold,
-                color = Color(0xFF8A2B5B)
+                color = if (darkTheme) Color(0xFFFFD1E8) else Color(0xFF8A2B5B)
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -53,7 +79,10 @@ fun PantallaLogin(
             Card(
                 shape = RoundedCornerShape(22.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color.White.copy(alpha = 0.6f)
+                    containerColor = if (darkTheme)
+                        Color.Black.copy(alpha = 0.35f)
+                    else
+                        Color.White.copy(alpha = 0.6f)
                 ),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -74,15 +103,14 @@ fun PantallaLogin(
                         onValueChange = { contrasena = it },
                         label = { Text("Contraseña") },
                         singleLine = true,
+                        visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     Spacer(modifier = Modifier.height(18.dp))
 
                     Button(
-                        onClick = {
-                            onIniciarSesion(usuario.ifBlank { "AndreaFF" })
-                        },
+                        onClick = { onIniciarSesion(usuario.ifBlank { "AndreaFF" }) },
                         shape = RoundedCornerShape(18.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFFFF5AA5),

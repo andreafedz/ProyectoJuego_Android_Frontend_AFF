@@ -110,7 +110,7 @@ fun PantallaJuego(
             .background(fondoGradiente)
     ) {
 
-        // ✅ FILA SUPERIOR: VOLVER + MODO NOCHE
+        // FILA SUPERIOR: VOLVER + MODO NOCHE
         Row(
             modifier = Modifier
                 .align(Alignment.TopStart)

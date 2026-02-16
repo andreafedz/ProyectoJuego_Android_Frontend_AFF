@@ -12,7 +12,7 @@ class JuegoViewModel : ViewModel() {
     private val opciones = DatosPrueba.opcionesPPT
 
 
-    // ✅ Stats
+    //  Stats
     private val _partidas = mutableStateOf(0)
     val partidas: State<Int> = _partidas
 
@@ -23,7 +23,7 @@ class JuegoViewModel : ViewModel() {
         val eleccionCPU = opciones[Random.nextInt(opciones.size)]
         val resultado = determinarResultado(eleccionUsuario, eleccionCPU)
 
-        // ✅ Actualizar stats
+        // Actualizar stats
         _partidas.value++
 
         if (resultado == "Ganaste") {

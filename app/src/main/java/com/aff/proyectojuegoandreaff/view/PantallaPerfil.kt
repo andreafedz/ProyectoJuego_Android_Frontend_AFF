@@ -49,7 +49,7 @@ fun PantallaPerfil(
 
     val titleColor = if (darkTheme) Color(0xFFFFE6FF) else Color(0xFF8A2B5B)
 
-    // ... el resto igual
+
 
     val cardBg = if (darkTheme) Color(0xFF1B1430) else Color(0xFFFFCFE3)
     val cardInner = if (darkTheme) Color(0xFF2A2442) else Color(0xFFFFEAF1)

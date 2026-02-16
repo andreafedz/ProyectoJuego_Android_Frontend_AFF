@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Color
 // --------------------
 val PinkPrimary = Color(0xFFFF5FA2)      // rosa fuerte (botones principales)
 val PinkPrimaryContainer = Color(0xFFFFD1E4) // rosa suave (tarjetas / contenedores)
-val BlueSecondary = Color(0xFF67C9FF)     // azul pastel (botón "invitar" / acentos)
+val BlueSecondary = Color(0xFF67C9FF)     // azul pastel
 val BlueSecondaryContainer = Color(0xFFD6F2FF)
 
 val BackgroundLight = Color(0xFFFFE6F0) // fondo rosa muy clarito
