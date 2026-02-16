@@ -25,12 +25,11 @@ fun OpcionCard(
     darkTheme: Boolean,
     onClick: () -> Unit
 ) {
-    // Colores de la tarjeta según tema + selección
     val containerColor = when {
-        seleccionada && darkTheme -> Color(0xFF2A2442) // morado oscuro
-        seleccionada && !darkTheme -> Color(0xFFFFD7EA) // rosa claro
-        darkTheme -> Color(0xFF17122B) // card oscuro normal
-        else -> Color(0xFFFFEAF1) // card claro normal
+        seleccionada && darkTheme -> Color(0xFF2A2442)
+        seleccionada && !darkTheme -> Color(0xFFFFD7EA)
+        darkTheme -> Color(0xFF17122B)
+        else -> Color(0xFFFFFAF1)
     }
 
     val textColor = if (darkTheme) Color(0xFFFFE6FF) else Color(0xFF2A2233)
@@ -53,9 +52,7 @@ fun OpcionCard(
                 contentDescription = titulo,
                 modifier = Modifier.size(95.dp)
             )
-
             Spacer(modifier = Modifier.height(6.dp))
-
             Text(
                 text = titulo,
                 style = MaterialTheme.typography.bodyLarge,
@@ -71,17 +68,13 @@ fun PantallaJuego(
     onToggleTheme: () -> Unit,
     juegoViewModel: JuegoViewModel,
     onRegresar: () -> Unit
-)
- {
-
+) {
     var opcionSeleccionada by remember { mutableStateOf<String?>(null) }
 
-    var eleccionUsuario by remember { mutableStateOf<String?>(null) }
-    var eleccionCPU by remember { mutableStateOf<String?>(null) }
-    var resultadoFinal by remember { mutableStateOf<String?>(null) }
-
-    val systemDark = isSystemInDarkTheme()
-    var darkTheme by remember { mutableStateOf(systemDark) }
+    // Estado que viene del ViewModel
+    val resultadoPartida = juegoViewModel.resultadoPartida.value
+    val cargando = juegoViewModel.cargando.value
+    val error = juegoViewModel.error.value
 
     val fondoGradiente = if (darkTheme) {
         Brush.verticalGradient(
@@ -102,12 +95,12 @@ fun PantallaJuego(
     }
 
     val titleColor = if (darkTheme) Color(0xFFFFE6FF) else MaterialTheme.colorScheme.onBackground
-    val subtitleColor = if (darkTheme) Color(0xFFD7CFF0) else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.75f)
+    val subtitleColor = if (darkTheme) Color(0xFF7D7CF0) else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.75f)
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(fondoGradiente)
+            .background(brush = fondoGradiente)
     ) {
 
         // FILA SUPERIOR: VOLVER + MODO NOCHE
@@ -125,23 +118,18 @@ fun PantallaJuego(
                     contentColor = if (darkTheme) Color(0xFFFFE6FF) else Color(0xFF2A2233)
                 )
             ) {
-                Text(
-                    text = "⬅️  Volver",
-                    style = MaterialTheme.typography.titleMedium
-                )
+                Text(text = "⬅ Volver", style = MaterialTheme.typography.titleMedium)
             }
 
-            IconButton(onClick = { darkTheme = !darkTheme }) {
-                Text(text = if (darkTheme) "☀️" else "🌙")
+            IconButton(onClick = onToggleTheme) {
+                Text(text = if (darkTheme) "🌙" else "☀️")
             }
         }
-
-
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(all = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -151,11 +139,10 @@ fun PantallaJuego(
                 style = MaterialTheme.typography.headlineMedium,
                 color = titleColor
             )
-
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Elige una opción",
+                text = "Elige una opción:",
                 style = MaterialTheme.typography.bodyLarge,
                 color = subtitleColor
             )
@@ -175,10 +162,7 @@ fun PantallaJuego(
                     darkTheme = darkTheme
                 ) {
                     opcionSeleccionada = "Piedra"
-                    val r = juegoViewModel.jugar("Piedra")
-                    eleccionUsuario = r.eleccionUsuario
-                    eleccionCPU = r.eleccionCPU
-                    resultadoFinal = r.resultado
+                    juegoViewModel.jugar("piedra")
                 }
 
                 Spacer(modifier = Modifier.width(12.dp))
@@ -190,10 +174,7 @@ fun PantallaJuego(
                     darkTheme = darkTheme
                 ) {
                     opcionSeleccionada = "Papel"
-                    val r = juegoViewModel.jugar("Papel")
-                    eleccionUsuario = r.eleccionUsuario
-                    eleccionCPU = r.eleccionCPU
-                    resultadoFinal = r.resultado
+                    juegoViewModel.jugar("papel")
                 }
 
                 Spacer(modifier = Modifier.width(12.dp))
@@ -205,26 +186,42 @@ fun PantallaJuego(
                     darkTheme = darkTheme
                 ) {
                     opcionSeleccionada = "Tijeras"
-                    val r = juegoViewModel.jugar("Tijeras")
-                    eleccionUsuario = r.eleccionUsuario
-                    eleccionCPU = r.eleccionCPU
-                    resultadoFinal = r.resultado
+                    juegoViewModel.jugar("tijera")
                 }
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            //  Resultado
+            // Cargando / Error
+            if (cargando) {
+                CircularProgressIndicator()
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = "Conectando con el servidor...",
+                    color = subtitleColor
+                )
+            }
+
+            if (error != null) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = error,
+                    color = Color(0xFFFF6B6B),
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // RESULTADO (solo si ya hay respuesta)
             ResultadoPanel(
-                eleccionUsuario = eleccionUsuario,
-                eleccionCPU = eleccionCPU,
-                resultado = resultadoFinal,
+                eleccionUsuario = resultadoPartida?.eleccionUsuario,
+                eleccionCPU = resultadoPartida?.eleccionCpu,
+                resultado = resultadoPartida?.resultado,
                 darkTheme = darkTheme,
                 onJugarDeNuevo = {
                     opcionSeleccionada = null
-                    eleccionUsuario = null
-                    eleccionCPU = null
-                    resultadoFinal = null
+                    juegoViewModel.resetResultado()
                 }
             )
         }
@@ -242,13 +239,13 @@ fun ResultadoPanel(
     val cardBg = if (darkTheme) Color(0xFF1B1430) else Color(0xFFFFD7EA)
     val divider = if (darkTheme) Color(0x33FFFFFF) else Color(0x33000000)
     val textMain = if (darkTheme) Color(0xFFFDEEFF) else Color(0xFF3A2A33)
-    val textSoft = if (darkTheme) Color(0xCCFDEEFF) else Color(0xCC3A2A33)
+    val textSoft = if (darkTheme) Color(0xCCDEEFFF) else Color(0xCC3A2A33)
 
     val resultadoTexto = resultado ?: "Elige una opción"
-    val usuarioTxt = eleccionUsuario ?: "-"
-    val cpuTxt = eleccionCPU ?: "-"
+    val usuarioTxt = eleccionUsuario ?: "--"
+    val cpuTxt = eleccionCPU ?: "--"
 
-    val pillColor = when (resultado?.lowercase()) {
+    val pillColor = when (resultadoTexto.lowercase()) {
         "ganaste" -> Color(0xFF7BC96F)
         "perdiste" -> Color(0xFFFF6B7A)
         "empate" -> Color(0xFFB59CFF)
@@ -261,7 +258,7 @@ fun ResultadoPanel(
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         modifier = Modifier.fillMaxWidth(0.85f)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(all = 16.dp)) {
 
             Text(
                 text = "Resultado",
@@ -270,9 +267,8 @@ fun ResultadoPanel(
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 
-            Spacer(Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            // Línea divisoria
             Box(
                 Modifier
                     .fillMaxWidth()
@@ -280,23 +276,22 @@ fun ResultadoPanel(
                     .background(divider)
             )
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Elecciones
             Row(Modifier.fillMaxWidth()) {
                 Column(Modifier.weight(1f)) {
-                    Text("Tú elegiste:", color = textSoft, style = MaterialTheme.typography.bodyMedium)
-                    Spacer(Modifier.height(10.dp))
-                    Text("Sistema eligió:", color = textSoft, style = MaterialTheme.typography.bodyMedium)
+                    Text(text = "Tú elegiste:", color = textSoft, style = MaterialTheme.typography.bodyMedium)
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(text = "Sistema eligió:", color = textSoft, style = MaterialTheme.typography.bodyMedium)
                 }
                 Column(horizontalAlignment = Alignment.End) {
-                    Text(usuarioTxt, color = textMain, style = MaterialTheme.typography.bodyLarge)
-                    Spacer(Modifier.height(10.dp))
-                    Text(cpuTxt, color = textMain, style = MaterialTheme.typography.bodyLarge)
+                    Text(text = usuarioTxt, color = textMain, style = MaterialTheme.typography.bodyLarge)
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(text = cpuTxt, color = textMain, style = MaterialTheme.typography.bodyLarge)
                 }
             }
 
-            Spacer(Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             Card(
                 shape = RoundedCornerShape(18.dp),
@@ -304,27 +299,22 @@ fun ResultadoPanel(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "¡$resultadoTexto!",
+                    text = resultadoTexto,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 12.dp),
+                    textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color.White,
-                    textAlign = TextAlign.Center
+                    color = Color.White
                 )
             }
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Botón jugar de nuevo
             Button(
                 onClick = onJugarDeNuevo,
                 shape = RoundedCornerShape(18.dp),
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (darkTheme) Color(0xFF7B5CFF) else Color(0xFFFF5AA5),
-                    contentColor = Color.White
-                )
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Jugar de nuevo")
             }
